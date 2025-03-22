@@ -37,24 +37,24 @@ const verifyToken = (req, res, next) => {
 // Admin login
 router.post('/login', async (req, res) => {
   try {
-    console.log('Login request received:', req.body);
+    console.log('Login attempt received:', { username: req.body.username });
     const { username, password } = req.body;
     
     // Find admin user
     const admin = await Admin.findOne({ username });
-    console.log('Admin found:', admin ? 'Yes' : 'No');
+    console.log('Admin user found:', admin ? 'Yes' : 'No');
 
     if (!admin) {
-      console.log('Admin not found with username:', username);
+      console.log('Login failed: Admin not found with username:', username);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Compare password
     const isValidPassword = await admin.comparePassword(password);
-    console.log('Password valid:', isValidPassword);
+    console.log('Password validation result:', isValidPassword);
 
     if (!isValidPassword) {
-      console.log('Invalid password for admin:', username);
+      console.log('Login failed: Invalid password for admin:', username);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -64,10 +64,13 @@ router.post('/login', async (req, res) => {
     });
 
     console.log('Login successful for admin:', username);
-    res.json({ token });
+    res.json({ 
+      token,
+      message: 'Login successful'
+    });
   } catch (error) {
-    console.error('Login error details:', error);
-    res.status(500).json({ message: 'An error occurred during login' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'An error occurred during login', error: error.message });
   }
 });
 

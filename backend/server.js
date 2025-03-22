@@ -60,21 +60,34 @@ mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => {
+.then(async () => {
     console.log('Connected to MongoDB');
+    
     // Create admin user if it doesn't exist
-    const Admin = require('./models/Admin');
-    Admin.findOne({ username: 'admin' }).then(admin => {
+    try {
+        const Admin = require('./models/Admin');
+        const admin = await Admin.findOne({ username: 'admin' });
+        
         if (!admin) {
+            console.log('Creating default admin user...');
             const newAdmin = new Admin({
                 username: 'admin',
                 password: 'admin123'
             });
-            newAdmin.save()
-                .then(() => console.log('Default admin user created'))
-                .catch(err => console.error('Error creating admin:', err));
+            await newAdmin.save();
+            console.log('Default admin user created successfully');
+        } else {
+            console.log('Admin user already exists');
+            // Update admin password if needed
+            if (process.env.NODE_ENV === 'development') {
+                admin.password = 'admin123';
+                await admin.save();
+                console.log('Admin password updated');
+            }
         }
-    });
+    } catch (error) {
+        console.error('Error managing admin user:', error);
+    }
 })
 .catch((err) => console.error('MongoDB connection error:', err));
 
