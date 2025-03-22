@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Backend for BusSevaKolkata",
   "main": "server.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "npm install"
   },
   "keywords": [],
   "author": "",
