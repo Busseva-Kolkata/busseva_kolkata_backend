@@ -15,8 +15,7 @@ const corsOptions = {
         'https://bussevaadmin.netlify.app',
         'http://localhost:3000',
         'http://127.0.0.1:5500',
-        'https://busseva-kolkata-backend.onrender.com',
-        'https://busseva-backend.onrender.com'
+        'https://busseva-kolkata-backend.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -34,6 +33,7 @@ app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('Headers:', req.headers);
     console.log('Origin:', req.get('origin'));
+    console.log('Host:', req.get('host'));
     next();
 });
 
@@ -44,7 +44,8 @@ app.get('/', (req, res) => {
         message: 'BusSevaKolkata Backend is running!',
         timestamp: new Date().toISOString(),
         env: process.env.NODE_ENV,
-        status: 'success'
+        status: 'success',
+        host: req.get('host')
     });
 });
 
