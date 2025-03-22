@@ -38,6 +38,18 @@ app.get('/', (req, res) => {
     });
 });
 
+// API root route
+app.get('/api', (req, res) => {
+    res.json({
+        message: 'BusSevaKolkata API is running!',
+        endpoints: {
+            admin: '/api/admin',
+            buses: '/api/buses'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Test route
 app.get('/test', (req, res) => {
     res.json({ message: 'Test route is working!' });
@@ -48,7 +60,22 @@ mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => console.log('Connected to MongoDB'))
+.then(() => {
+    console.log('Connected to MongoDB');
+    // Create admin user if it doesn't exist
+    const Admin = require('./models/Admin');
+    Admin.findOne({ username: 'admin' }).then(admin => {
+        if (!admin) {
+            const newAdmin = new Admin({
+                username: 'admin',
+                password: 'admin123'
+            });
+            newAdmin.save()
+                .then(() => console.log('Default admin user created'))
+                .catch(err => console.error('Error creating admin:', err));
+        }
+    });
+})
 .catch((err) => console.error('MongoDB connection error:', err));
 
 // Handle MongoDB connection events
@@ -80,7 +107,16 @@ app.use((err, req, res, next) => {
 
 // Handle 404
 app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+    res.status(404).json({ 
+        message: 'Route not found',
+        requested_url: req.url,
+        available_endpoints: {
+            root: '/',
+            api: '/api',
+            admin: '/api/admin',
+            buses: '/api/buses'
+        }
+    });
 });
 
 const PORT = process.env.PORT || 5000;
