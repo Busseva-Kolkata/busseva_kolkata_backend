@@ -39,16 +39,19 @@ app.use((req, res, next) => {
 
 // Root route for checking server status
 app.get('/', (req, res) => {
-    res.json({ 
+    console.log('Root route accessed');
+    res.status(200).json({ 
         message: 'BusSevaKolkata Backend is running!',
         timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV
+        env: process.env.NODE_ENV,
+        status: 'success'
     });
 });
 
 // API root route
 app.get('/api', (req, res) => {
-    res.json({
+    console.log('API root route accessed');
+    res.status(200).json({
         message: 'BusSevaKolkata API is running!',
         endpoints: {
             admin: '/api/admin',
@@ -60,7 +63,20 @@ app.get('/api', (req, res) => {
 
 // Test route
 app.get('/test', (req, res) => {
-    res.json({ message: 'Test route is working!' });
+    console.log('Test route accessed');
+    res.status(200).json({ message: 'Test route is working!' });
+});
+
+// Add OPTIONS handler for root route
+app.options('/', (req, res) => {
+    console.log('OPTIONS request for root route');
+    res.status(200).end();
+});
+
+// Add OPTIONS handler for API route
+app.options('/api', (req, res) => {
+    console.log('OPTIONS request for API route');
+    res.status(200).end();
 });
 
 // MongoDB Connection
