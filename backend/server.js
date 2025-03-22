@@ -11,7 +11,13 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-    origin: ['https://bussevaadmin.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'],
+    origin: [
+        'https://bussevaadmin.netlify.app',
+        'http://localhost:3000',
+        'http://127.0.0.1:5500',
+        'https://busseva-kolkata-backend.onrender.com',
+        'https://busseva-backend.onrender.com'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -23,9 +29,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Log all requests
+// Log all requests with more detail
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Origin:', req.get('origin'));
     next();
 });
 
