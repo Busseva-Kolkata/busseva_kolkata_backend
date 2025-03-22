@@ -34,8 +34,14 @@
             const password = document.getElementById('password').value;
             const errorMessageElement = document.getElementById('error-message');
 
+            console.log('Starting login process...');
+            console.log('API URL:', API_URL);
+            console.log('Username:', username);
+            
             try {
-                console.log('Attempting login to:', `${API_URL}/admin/login`);
+                console.log('Preparing to send request to:', `${API_URL}/admin/login`);
+                console.log('Request payload:', JSON.stringify({ username, password }));
+                
                 const response = await fetch(`${API_URL}/admin/login`, {
                     method: 'POST',
                     headers: {
@@ -45,20 +51,27 @@
                     body: JSON.stringify({ username, password })
                 });
 
+                console.log('Response received');
                 console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
                 const data = await response.json();
                 console.log('Response data:', data);
 
                 if (response.ok) {
-                    // Save token and redirect
+                    console.log('Login successful, saving token...');
                     localStorage.setItem('adminToken', data.token);
+                    console.log('Token saved, redirecting...');
                     window.location.href = 'index.html';
                 } else {
-                    // Show error message from server
+                    console.log('Login failed:', data.message);
                     errorMessageElement.textContent = data.message || 'Invalid credentials';
                 }
             } catch (error) {
-                console.error('Login error:', error);
+                console.error('Detailed login error:', error);
+                console.error('Error name:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
                 errorMessageElement.textContent = 'Network error. Please check your connection.';
             }
         });
