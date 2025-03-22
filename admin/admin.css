@@ -1,0 +1,111 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.admin-form {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.btn-submit {
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background: #0056b3;
+}
+
+.bus-list {
+    margin-top: 2rem;
+}
+
+.bus-card {
+    background: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.bus-card img {
+    max-width: 200px;
+    height: auto;
+}
+
+.bus-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-edit, 
+.btn-delete {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #28a745;
+    color: white;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+/* Admin Login Styles */
+.login-container {
+    max-width: 400px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    margin-bottom: 1rem;
+} 

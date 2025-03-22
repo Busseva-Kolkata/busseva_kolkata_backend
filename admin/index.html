@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusSevaKolkata - Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">BusSevaKolkata Admin</div>
+        <div class="nav-links">
+            <a href="../index.html">View Site</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <h1>Admin Panel</h1>
+        
+        <div class="admin-form">
+            <h2>Add New Bus</h2>
+            <form id="busForm">
+                <div class="form-group">
+                    <label for="busNumber">Bus Number</label>
+                    <input type="text" id="busNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="route">Route</label>
+                    <input type="text" id="route" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">Bus Image</label>
+                    <input type="file" id="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="fare">Fare</label>
+                    <input type="number" id="fare" required>
+                </div>
+                <div class="form-group">
+                    <label for="timings">Timings</label>
+                    <input type="text" id="timings" required>
+                </div>
+                <div class="form-group">
+                    <label for="stops">Stops (comma-separated)</label>
+                    <input type="text" id="stops" required>
+                </div>
+                <button type="submit" class="btn-submit">Add Bus</button>
+            </form>
+        </div>
+
+        <div class="bus-list">
+            <h2>Existing Buses</h2>
+            <div id="busesList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://busseva-backend.onrender.com/api'; // Updated to Render backend URL
+
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Logout function
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+        });
+
+        // Load existing buses
+        async function loadBuses() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_URL}/buses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const buses = await response.json();
+                displayBuses(buses);
+            } catch (error) {
+                console.error('Error loading buses:', error);
+            }
+        }
+
+        // Display buses in the list
+        function displayBuses(buses) {
+            const busesList = document.getElementById('busesList');
+            busesList.innerHTML = buses.map(bus => `
+                <div class="bus-card">
+                    <h3>Bus ${bus.busNumber}</h3>
+                    <p><strong>Route:</strong> ${bus.route}</p>
+                    <p><strong>Description:</strong> ${bus.description}</p>
+                    <img src="${API_URL}${bus.imageUrl}" alt="Bus ${bus.busNumber}">
+                    <p><strong>Fare:</strong> ₹${bus.fare}</p>
+                    <p><strong>Timings:</strong> ${bus.timings}</p>
+                    <p><strong>Stops:</strong> ${bus.stops.join(', ')}</p>
+                    <div class="bus-actions">
+                        <button class="btn-edit" onclick="editBus('${bus._id}')">Edit</button>
+                        <button class="btn-delete" onclick="deleteBus('${bus._id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Handle form submission
+        document.getElementById('busForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('adminToken');
+            const formData = new FormData();
+            formData.append('busNumber', document.getElementById('busNumber').value);
+            formData.append('route', document.getElementById('route').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('image', document.getElementById('image').files[0]);
+            formData.append('fare', document.getElementById('fare').value);
+            formData.append('timings', document.getElementById('timings').value);
+            formData.append('stops', document.getElementById('stops').value);
+
+            try {
+                const response = await fetch(`${API_URL}/admin/buses`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    alert('Bus added successfully!');
+                    e.target.reset();
+                    loadBuses();
+                } else {
+                    throw new Error('Failed to add bus');
+                }
+            } catch (error) {
+                console.error('Error adding bus:', error);
+                alert('Failed to add bus. Please try again.');
+            }
+        });
+
+        // Delete bus
+        async function deleteBus(id) {
+            if (!confirm('Are you sure you want to delete this bus?')) return;
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${API_URL}/admin/buses/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Bus deleted successfully!');
+                    loadBuses();
+                } else {
+                    throw new Error('Failed to delete bus');
+                }
+            } catch (error) {
+                console.error('Error deleting bus:', error);
+                alert('Failed to delete bus. Please try again.');
+            }
+        }
+
+        // Check authentication when page loads
+        checkAuth();
+        // Load buses when page loads
+        loadBuses();
+    </script>
+</body>
+</html> 
