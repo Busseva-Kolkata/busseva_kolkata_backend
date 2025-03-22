@@ -37,20 +37,37 @@ const verifyToken = (req, res, next) => {
 // Admin login
 router.post('/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { username, password } = req.body;
+    
+    // Find admin user
     const admin = await Admin.findOne({ username });
+    console.log('Admin found:', admin ? 'Yes' : 'No');
 
-    if (!admin || !(await admin.comparePassword(password))) {
+    if (!admin) {
+      console.log('Admin not found with username:', username);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Compare password
+    const isValidPassword = await admin.comparePassword(password);
+    console.log('Password valid:', isValidPassword);
+
+    if (!isValidPassword) {
+      console.log('Invalid password for admin:', username);
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate token
     const token = jwt.sign({ adminId: admin._id }, process.env.JWT_SECRET, {
       expiresIn: '24h'
     });
 
+    console.log('Login successful for admin:', username);
     res.json({ token });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Login error details:', error);
+    res.status(500).json({ message: 'An error occurred during login' });
   }
 });
 
