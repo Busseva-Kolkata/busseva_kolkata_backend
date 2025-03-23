@@ -16,18 +16,22 @@ const app = express();
 const corsOptions = {
     origin: [
         'https://busseva.netlify.app',
+        'https://bussevaadmin.netlify.app',
         'http://localhost:3000',
         'http://127.0.0.1:5500'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    preflightContinue: false
 };
 
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -45,6 +49,13 @@ app.use((req, res, next) => {
     console.log('Headers:', req.headers);
     console.log('Origin:', req.get('origin'));
     console.log('Host:', req.get('host'));
+    if (req.method === 'OPTIONS') {
+        console.log('Handling OPTIONS request');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+        res.status(200).end();
+        return;
+    }
     next();
 });
 
@@ -77,18 +88,6 @@ app.get('/api', (req, res) => {
 app.get('/test', (req, res) => {
     console.log('Test route accessed');
     res.status(200).json({ message: 'Test route is working!' });
-});
-
-// Add OPTIONS handler for root route
-app.options('/', (req, res) => {
-    console.log('OPTIONS request for root route');
-    res.status(200).end();
-});
-
-// Add OPTIONS handler for API route
-app.options('/api', (req, res) => {
-    console.log('OPTIONS request for API route');
-    res.status(200).end();
 });
 
 // Create admin user if not exists
