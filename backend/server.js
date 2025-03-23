@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 // Load environment variables
 dotenv.config();
@@ -80,41 +81,45 @@ app.options('/api', (req, res) => {
     res.status(200).end();
 });
 
-// MongoDB Connection
+// Create admin user if not exists
+const createAdminUser = async () => {
+    try {
+        const adminExists = await Admin.findOne({ username: 'admin' });
+        if (!adminExists) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            const admin = new Admin({
+                username: 'admin',
+                password: hashedPassword
+            });
+            await admin.save();
+            console.log('Admin user created successfully');
+        } else {
+            console.log('Admin user already exists');
+            // In development, update password if needed
+            if (process.env.NODE_ENV === 'development') {
+                const hashedPassword = await bcrypt.hash('admin123', 10);
+                adminExists.password = hashedPassword;
+                await adminExists.save();
+                console.log('Admin password updated in development mode');
+            }
+        }
+    } catch (error) {
+        console.error('Error creating/updating admin user:', error);
+    }
+};
+
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(async () => {
+.then(() => {
     console.log('Connected to MongoDB');
-    
-    // Create admin user if it doesn't exist
-    try {
-        const Admin = require('./models/Admin');
-        const admin = await Admin.findOne({ username: 'admin' });
-        
-        if (!admin) {
-            console.log('Creating default admin user...');
-            const newAdmin = new Admin({
-                username: 'admin',
-                password: 'admin123'
-            });
-            await newAdmin.save();
-            console.log('Default admin user created successfully');
-        } else {
-            console.log('Admin user already exists');
-            // Update admin password if needed
-            if (process.env.NODE_ENV === 'development') {
-                admin.password = 'admin123';
-                await admin.save();
-                console.log('Admin password updated');
-            }
-        }
-    } catch (error) {
-        console.error('Error managing admin user:', error);
-    }
+    createAdminUser(); // Create admin user after successful connection
 })
-.catch((err) => console.error('MongoDB connection error:', err));
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+});
 
 // Handle MongoDB connection events
 mongoose.connection.on('connected', () => {
