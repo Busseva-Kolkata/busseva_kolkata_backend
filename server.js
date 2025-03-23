@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const Admin = require('./models/Admin');
 
 // Load environment variables
 dotenv.config();
@@ -88,12 +89,13 @@ const createAdminUser = async () => {
         if (!adminExists) {
             const admin = new Admin({
                 username: 'admin',
-                password: 'admin123'
+                password: 'admin123'  // Matching the MongoDB Compass password
             });
             await admin.save();
             console.log('Admin user created successfully');
         } else {
-            console.log('Admin user already exists - using existing credentials');
+            console.log('Admin user exists in database - using existing credentials');
+            console.log('Username:', adminExists.username);
         }
     } catch (error) {
         console.error('Error checking admin user:', error);
