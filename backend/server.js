@@ -140,11 +140,16 @@ app.use('/api/admin', adminRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
-    res.status(500).json({ message: 'Internal server error', error: err.message });
+    res.status(500).json({ 
+        message: 'Internal server error', 
+        error: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
 });
 
 // Handle 404
 app.use((req, res) => {
+    console.log('404 - Route not found:', req.url);
     res.status(404).json({ 
         message: 'Route not found',
         requested_url: req.url,
@@ -163,6 +168,12 @@ const server = app.listen(PORT, () => {
     console.log('Environment:', process.env.NODE_ENV);
     console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
     console.log('JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+    console.log('Available Routes:');
+    console.log('- GET /');
+    console.log('- GET /api');
+    console.log('- GET /test');
+    console.log('- POST /api/admin/login');
+    console.log('- GET /api/buses');
 });
 
 // Handle server errors
