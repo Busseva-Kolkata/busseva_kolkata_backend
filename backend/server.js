@@ -89,16 +89,25 @@ const createAdminUser = async () => {
         if (!adminExists) {
             const admin = new Admin({
                 username: 'admin',
-                password: 'admin123'  // Matching the MongoDB Compass password
+                password: 'admin123'
             });
             await admin.save();
             console.log('Admin user created successfully');
         } else {
-            console.log('Admin user exists in database - using existing credentials');
-            console.log('Username:', adminExists.username);
+            console.log('Admin user exists in database - updating password');
+            // Force update the password
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('admin123', salt);
+            // Update password directly in database
+            await Admin.updateOne(
+                { username: 'admin' },
+                { $set: { password: hashedPassword } }
+            );
+            console.log('Admin password updated successfully');
         }
     } catch (error) {
-        console.error('Error checking admin user:', error);
+        console.error('Error managing admin user:', error);
+        console.error('Error details:', error.message);
     }
 };
 
@@ -107,9 +116,10 @@ mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-.then(() => {
+.then(async () => {
     console.log('Connected to MongoDB');
-    createAdminUser(); // Create admin user after successful connection
+    await createAdminUser(); // Wait for admin user creation/update
+    console.log('Admin user setup completed');
 })
 .catch(err => {
     console.error('MongoDB connection error:', err);
