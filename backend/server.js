@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const Admin = require('./models/Admin');
+const fs = require('fs');
 
 // Load environment variables
 dotenv.config();
@@ -14,10 +15,9 @@ const app = express();
 // CORS configuration
 const corsOptions = {
     origin: [
-        'https://bussevaadmin.netlify.app',
+        'https://busseva.netlify.app',
         'http://localhost:3000',
-        'http://127.0.0.1:5500',
-        'https://busseva-kolkata-backend.onrender.com'
+        'http://127.0.0.1:5500'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -28,7 +28,16 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Created uploads directory');
+}
 
 // Log all requests with more detail
 app.use((req, res, next) => {
