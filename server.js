@@ -86,10 +86,9 @@ const createAdminUser = async () => {
     try {
         const adminExists = await Admin.findOne({ username: 'admin' });
         if (!adminExists) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
             const admin = new Admin({
                 username: 'admin',
-                password: hashedPassword
+                password: 'admin123'
             });
             await admin.save();
             console.log('Admin user created successfully');
@@ -97,8 +96,7 @@ const createAdminUser = async () => {
             console.log('Admin user already exists');
             // In development, update password if needed
             if (process.env.NODE_ENV === 'development') {
-                const hashedPassword = await bcrypt.hash('admin123', 10);
-                adminExists.password = hashedPassword;
+                adminExists.password = 'admin123';
                 await adminExists.save();
                 console.log('Admin password updated in development mode');
             }
