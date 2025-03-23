@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const Admin = require('./models/Admin');
 
 // Load environment variables
 dotenv.config();
@@ -93,10 +94,16 @@ const createAdminUser = async () => {
             await admin.save();
             console.log('Admin user created successfully');
         } else {
-            console.log('Admin user already exists - using existing credentials');
+            console.log('Admin user already exists');
+            // In development, update password if needed
+            if (process.env.NODE_ENV === 'development') {
+                adminExists.password = 'admin123';
+                await adminExists.save();
+                console.log('Admin password updated in development mode');
+            }
         }
     } catch (error) {
-        console.error('Error checking admin user:', error);
+        console.error('Error creating/updating admin user:', error);
     }
 };
 
