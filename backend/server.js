@@ -93,16 +93,10 @@ const createAdminUser = async () => {
             await admin.save();
             console.log('Admin user created successfully');
         } else {
-            console.log('Admin user already exists');
-            // In development, update password if needed
-            if (process.env.NODE_ENV === 'development') {
-                adminExists.password = 'admin123';
-                await adminExists.save();
-                console.log('Admin password updated in development mode');
-            }
+            console.log('Admin user already exists - using existing credentials');
         }
     } catch (error) {
-        console.error('Error creating/updating admin user:', error);
+        console.error('Error checking admin user:', error);
     }
 };
 
